@@ -31,6 +31,28 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deployed URL: https://calendar-carousel-lys6.vercel.app/
+Change the numbers of Cards from app/_components/CalendarCarousel/utils/calendarCardRenderers.tsx
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+export function useEmptyStateCalendarCards({ moveInFront, createCardRef }: EmptyStateCalendarCardsProps) {
+  return useMemo(
+    () =>
+      [...Array(100)].map((_, index) => (
+        <CalendarCardWrapper
+          key={`empty-card-${index}`}
+          index={index}
+          useRefCallback
+          createCardRef={createCardRef}
+        >
+          <EmptyStateDailyCalendar
+            index={index}
+            isCardCalendar
+            moveInFront={() => moveInFront(index)}
+          />
+        </CalendarCardWrapper>
+      )),
+    [moveInFront, createCardRef]
+  )
+}
+```
