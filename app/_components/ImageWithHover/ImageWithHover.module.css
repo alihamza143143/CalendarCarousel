@@ -1,0 +1,49 @@
+.imageWrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.imageWrapper .defaultImage {
+  opacity: 1;
+  transition: var(--transition);
+}
+
+.imageWrapper .hoveredImage,
+.imageWrapper .activeImage {
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.imageWrapperApplyHover:hover .defaultImage,
+.hoveredByProxy .defaultImage {
+  opacity: 0;
+}
+
+.imageWrapperApplyHover:hover .hoveredImage,
+.hoveredByProxy .hoveredImage {
+  opacity: 1;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.activeImageWrapper:active .hoveredImage,
+.activeImageWrapper:active .defaultImage {
+  opacity: 0;
+}
+
+.activeImageWrapper:active .activeImage {
+  opacity: 1;
+}
+
+.imageWrapper div:last-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

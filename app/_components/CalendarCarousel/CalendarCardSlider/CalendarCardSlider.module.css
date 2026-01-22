@@ -1,0 +1,33 @@
+.sliderContainer {
+  display: flex;
+  width: fit-content;
+  height: 100%;
+
+  width: var(--card-calendar-container-width);
+  aspect-ratio: var(--card-calendar-aspect-ratio);
+  padding-top: 1vmin;
+  overflow: hidden;
+}
+
+.calendarCardSlider {
+  display: flex;
+  width: fit-content;
+  height: 100%;
+}
+
+.innerContent {
+  position: relative;
+  width: var(--card-calendar-container-width);
+  aspect-ratio: var(--card-calendar-aspect-ratio);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.biMonthlyCalendarContainer {
+  height: 100%;
+  border-radius: 4.7vmin;
+}
+
+.biMonthlyCalendarContainer > div {
+  height: 50%;
+}

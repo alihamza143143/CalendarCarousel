@@ -1,0 +1,76 @@
+.check {
+  cursor: pointer;
+}
+
+.check path {
+  transition: var(--transition-exclude-size);
+  fill: var(--white);
+}
+
+.check:hover path {
+  fill: var(--green);
+}
+
+.cancel {
+  cursor: pointer;
+  width: fit-content;
+  stroke: currentColor;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cancel path {
+  transition: var(--transition-exclude-size);
+  stroke-width: 2;
+}
+
+.cancel:hover path {
+  stroke-width: 4;
+}
+
+.dayViewCalendarStatusIcon {
+  position: relative;
+  height: 55%;
+}
+
+.dayViewCalendarStatusIcon .statusIcon {
+  width: 62%;
+  height: 36%;
+  position: absolute;
+  z-index: 99999;
+  top: 49.1%;
+  left: 50.6%;
+  transform: translate(-50%, -50%);
+}
+
+.dayViewCalendarStatusIcon svg {
+  height: 8.705vmin;
+  width: 8.705vmin;
+}
+
+.dayViewCalendarMultiStatusIcon svg {
+  height: 8.705vmin;
+  width: 100%;
+  display: block;
+  margin: auto;
+}
+
+.dayViewCalendarMultiStatusWithResendIcon {
+  height: 100%;
+  width: 100%;
+}
+
+.dayViewCalendarMultiStatusWithResendIcon svg {
+  height: 11.8vmin;
+  width: 100%;
+  display: block;
+  margin: auto;
+}
+
+.statusText {
+  text-transform: capitalize;
+}

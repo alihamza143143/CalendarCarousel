@@ -1,0 +1,874 @@
+:root {
+  --send: #0F5CCF;
+  --search: #FF6F00;
+  --scout: #34C759;
+  --store: #0F5CCF;
+  --sign: #FFCC02;
+  --black-900: #000000;
+  --white: #ffffff;
+  --gray-500: #8E8E93;
+  --red: #FF0000;
+}
+
+.calendarContainer,
+.monthlyCalendarContainer,
+.dailyContainer,
+.calendarSwiper {
+  --container-border-radius: 6.11vmin;
+  --folio-container-border-radius: 3.05vmin;
+  --folio-container-top-border-radius: 4.7vmin;
+  --folio-container-bottom-border-radius: 1.67vmin;
+  --calendar-border-radius: 2.35vmin;
+  --folio-calendar-border-radius: 1.67vmin;
+  --daily-container-border-radius: var(--folio-container-top-border-radius);
+  --daily-container-vertical-padding: 2.5vmin;
+  --daily-container-gap: 4.5vmin;
+  --border-width: 6px;
+  --font-size-small-folio: calc(0.29vw + 0.29vh);
+  --font-size-small: calc(0.4vw + 0.4vh);
+  --font-size-normal: calc(0.467vw + 0.467vh);
+  --font-size-medium: calc(0.6vw + 0.6vh);
+  --font-size-large: calc(0.65vw + 0.65vh);
+  --font-size-xlarge: calc(2.14vw + 2.14vh);
+  --folio-slider-offset: 3vh;
+  --timeline-dot-size: 3.25vmin;
+  --timeline-active-indicator-width: 310%;
+}
+
+.calendarSwiper {
+  height: 100%;
+  width: 90.85vw;
+  left: 50%;
+  /* transform: translateX(-50%); */
+}
+
+.calendarSwiper.calendarSwiperFolio {
+  /* height: calc(100% + 2vmin); */
+  width: 100%;
+  padding: 1vmin 0 !important;
+  /* top: -1vmin; */
+}
+
+.calendarSwiperSlide {
+  height: 100%;
+}
+
+.topDateWrapper {
+  height: 100%;
+  position: relative;
+  transform: translate(0, 0) scale(1);
+}
+
+.biMonthlyTopDateWrapper {
+  height: 50%;
+}
+
+/* Calendar containers */
+.calendarContainer,
+.monthlyCalendarContainer {
+  height: 100%;
+  position: relative;
+  border: var(--border-width) solid black;
+  border-radius: var(--folio-container-top-border-radius);
+}
+
+.folioMonthlyCalendarContainer.folioMonthlyCalendarFirstItem:not(.folioFullPageMonthlyCalendarContainer) {
+  border-radius: var(--folio-container-top-border-radius) var(--folio-container-top-border-radius)
+    var(--folio-container-bottom-border-radius) var(--folio-container-bottom-border-radius);
+  border-bottom-width: 1px !important;
+}
+
+.folioMonthlyCalendarContainer.folioMonthlyCalendarLastItem:not(.folioFullPageMonthlyCalendarContainer) {
+  border-radius: var(--folio-container-bottom-border-radius) var(--folio-container-bottom-border-radius)
+    var(--folio-container-top-border-radius) var(--folio-container-top-border-radius);
+  border-top-width: 1px !important;
+}
+
+.calendarContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 0.5vmin;
+  background-color: var(--black-900);
+  overflow: hidden;
+}
+
+.monthlyCalendarContainer {
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25vmin;
+}
+
+.dailyContainer {
+  background-color: var(--white);
+  border-radius: var(--daily-container-border-radius);
+  border: 6.115px solid var(--send);
+  display: flex;
+  padding: var(--daily-container-vertical-padding) 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--daily-container-gap);
+  flex: 1 0 0;
+  position: relative;
+  height: 100%;
+}
+
+.folioDailyContainer {
+  padding: calc(var(--daily-container-vertical-padding) * 0.92) 0;
+  position: relative;
+}
+
+/* React Calendar customization */
+.calendarContainer :global(.react-calendar) {
+  border-radius: var(--calendar-border-radius);
+  height: 100%;
+  background-color: var(--white);
+}
+
+.calendarContainer.folioCalendarContainer :global(.react-calendar) {
+  border-radius: var(--folio-calendar-border-radius);
+}
+
+.calendarContainer :global(.react-calendar__navigation) {
+  display: flex;
+  border-bottom: 0.79px solid var(--black-900);
+  height: 20%;
+  width: 88%;
+  margin: 0 auto;
+  margin-bottom: 1vmin;
+}
+
+.calendarContainer :global(.react-calendar__navigation) span {
+  color: var(--red);
+  text-align: center;
+  font-size: var(--font-size-medium);
+  font-weight: 300;
+}
+
+.folioCalendarContainer.calendarContainer :global(.react-calendar__navigation) {
+  height: 16%;
+  margin-bottom: 0.5vmin;
+}
+
+.folioCalendarContainer.calendarContainer :global(.react-calendar__navigation) span {
+  font-size: var(--font-size-small-folio);
+}
+
+.folioCalendarContainer.calendarContainer .folioMonthlyCalendar :global(.react-calendar__tile) {
+  line-height: 1;
+}
+
+.calendarContainer :global(.react-calendar__navigation__arrow) {
+  display: none;
+}
+
+.calendarContainer :global(.react-calendar__month-view__weekdays__weekday) abbr {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  color: var(--light-grey);
+  font-size: var(--font-size-small);
+  font-weight: 300;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.calendarContainer.folioCalendarContainer :global(.react-calendar__month-view__weekdays__weekday) abbr {
+  font-size: var(--font-size-small-folio);
+}
+
+.calendarContainer :global(.react-calendar__viewContainer) {
+  height: 80%;
+}
+
+.calendarContainer :global(.react-calendar__month-view) {
+  height: 80%;
+}
+
+.calendarContainer :global(.react-calendar__month-view) > div,
+.calendarContainer :global(.react-calendar__month-view) > div > div {
+  height: 100%;
+}
+
+.calendarContainer :global(.react-calendar__month-view__days) {
+  height: 100%;
+}
+
+.calendarContainer :global(.react-calendar__tile) abbr {
+  font-size: var(--font-size-small);
+  font-weight: 300;
+}
+
+.folioCalendarContainer.calendarContainer :global(.react-calendar__tile) abbr {
+  font-size: var(--font-size-small-folio);
+  font-weight: 300;
+}
+
+.calendarContainer :global(button:focus) {
+  outline: none;
+  box-shadow: none;
+}
+
+.folioCalendarContainer {
+  border-radius: var(--folio-container-top-border-radius);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* RBC Calendar customization */
+.monthlyCalendarContainer :global(.rbc-calendar) {
+  overflow: hidden;
+  border-radius: var(--container-border-radius);
+  background-color: var(--white);
+}
+
+.monthlyCalendarContainer :global(.rbc-show-more) {
+  display: none;
+}
+
+.folioMonthlyCalendarContainer :global(.rbc-calendar) {
+  border-radius: var(--folio-container-top-border-radius);
+}
+
+.monthlyCalendarContainer :global(.rbc-month-view) {
+  border: none;
+}
+
+.monthlyCalendarContainer :global(.rbc-month-header) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--red);
+  font-size: var(--font-size-medium);
+  font-weight: 300;
+  line-height: 1.25;
+}
+
+.folioMonthlyCalendarContainer :global(.rbc-month-header) {
+  font-size: var(--font-size-small-folio);
+  line-height: 1.6;
+}
+
+.monthlyCalendarContainer :global(.rbc-header) {
+  padding: 1vmin 0;
+  border-bottom: 1px solid var(--black-900);
+}
+
+.folioMonthlyCalendarContainer :global(.rbc-header) {
+  padding: 0.8vmin 0;
+}
+
+.monthlyCalendarContainer :global(.rbc-header) span {
+  font-weight: 300;
+}
+
+.monthlyCalendarContainer :global(.rbc-header + .rbc-header) {
+  border-left: none;
+}
+
+.monthlyCalendarContainer :global(.rbc-date-cell) {
+  padding: 0;
+}
+
+.monthlyCalendarContainer :global(.rbc-date-cell) button {
+  height: 3.75vmin;
+  width: 3.75vmin;
+  margin: 0;
+  padding: 0;
+  padding-right: 0.7vmin;
+  font-weight: 200;
+  font-size: calc(0.535vw + 0.535vh);
+}
+
+.folioMonthlyCalendarContainer :global(.rbc-date-cell) button {
+  font-size: var(--font-size-small-folio);
+  height: 2.75vmin;
+  width: 2.75vmin;
+}
+
+.monthlyCalendarContainer :global(.rbc-off-range-bg) {
+  background-color: var(--white);
+}
+
+/* Daily event styles */
+.dailyEventName,
+.dailyEventAndNumber {
+  text-align: center;
+  font-size: calc(0.67vw + 0.67vh);
+  text-transform: capitalize;
+  font-weight: 100;
+}
+
+.dailyEventAndNumber {
+  font-size: calc(1.17vw + 1.17vh);
+}
+
+.topBarBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vmin;
+  height: 25%;
+}
+
+.dailyEventContainerWithDatesPage .topBarBlock {
+  height: 16%;
+  justify-content: flex-end;
+}
+
+.dailyEventContainerWithDatesPage .topBarBlock h1 {
+  font-weight: 200;
+}
+
+.dailyEventMainImage {
+  position: relative;
+  height: 43.331%;
+  width: 100%;
+  /* width: clamp(25vmin, 100%, 30vmin); */
+  text-align: center;
+}
+
+.dailyEventStatusBar {
+  height: 30%;
+  /* padding: 4.942% 0; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dailyEventStatusBar.dailyEventStatusBarwithLargeIcon {
+  /* padding: 3.2% 0 3%; */
+  top: -0.03%;
+  position: relative;
+}
+
+.dailyEventStatusBar div {
+  height: 55%;
+}
+
+.dailyEventStatusBar.dailyEventStatusBarwithLargeIcon div {
+  height: 70%;
+}
+
+.dailyEventMainImage svg,
+.dailyEventStatusBar div > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dailyEventMainImage div > svg {
+  height: 100%;
+  width: 100%;
+}
+
+.dailyEventTypeContainer {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.dailyEventTypeIcon {
+  position: absolute;
+  height: 6.7vmin;
+  width: 6.7vmin;
+  top: 50%;
+  right: 100%;
+  margin-right: 2.5vmin;
+  transform: translateY(-50%);
+}
+
+.dailyEventType {
+  position: relative;
+  text-align: center;
+  margin: 0;
+  font-size: var(--font-size-xlarge);
+  font-weight: 100;
+}
+
+.dailyEventType::first-letter {
+  text-transform: uppercase;
+}
+
+.dailyEventBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--daily-container-gap);
+  width: 100%;
+}
+
+/* Status bar styles */
+.statusBar {
+  position: relative;
+  height: 7.2vmin;
+  width: 7.2vmin;
+}
+
+.statusBarUnion {
+  width: 100%;
+}
+
+.statusBarFullDayView {
+  height: 12.9vmin;
+  width: 110.3vmin;
+}
+
+/* Swiper styles */
+.calendarSwiperSlide {
+  padding: 1vmin;
+  height: 80vh !important;
+}
+
+.calendarSwiperFolio .calendarSwiperSlide {
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+/* RBC monhly Event styles */
+
+.monthlyCalendarContainer :global(.rbc-row-content) {
+  height: 100%;
+}
+
+.monthlyCalendarContainer :global(.rbc-row-content .rbc-row:has(.rbc-row-segment)) {
+  height: inherit;
+  position: absolute;
+  padding: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.monthlyCalendarContainer :global(.rbc-row-segment) {
+  padding: 0;
+}
+
+.monthlyCalendarContainer :global(.rbc-event) {
+  height: 100%;
+  width: 100%;
+  background-color: transparent;
+  color: var(--black-900);
+  padding: 0;
+}
+
+.monthlyCalendarContainer :global(.rbc-event.rbc-selected) {
+  background-color: transparent;
+}
+
+.monthlyCalendarContainer :global(.rbc-event-content) {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.calendarSwiperFirstSlide {
+  padding-top: var(--folio-slider-offset);
+}
+
+.calendarSwiperFirstSlide .calendarSwiperSlide {
+  height: 100% !important;
+}
+
+.dailyEventContainer {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  /* gap: var(--daily-container-gap); */
+}
+
+.daytimeLineScrollBarItemDotIcon {
+  position: relative;
+  width: var(--timeline-dot-size);
+  height: var(--timeline-dot-size);
+  transform: scale(0.75) translateY(-50%);
+}
+
+.dailyEventMainContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.leftContentBlock {
+  height: 100%;
+  width: 100%;
+}
+
+.scrollBarItemLineWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5vmin;
+}
+
+.scrollBarItemLine {
+  border-bottom: 1px solid;
+  width: 100%;
+}
+
+.scrollBarItemLineWrapper .scrollBarItemLine:first-child {
+  border-width: 2px;
+}
+
+.scrollBarItemLineWrapper .scrollBarItemLine:last-child {
+  border-bottom: none;
+}
+
+.daytimeLineScrollBarItem {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5vmin;
+  height: 25%;
+}
+
+.daytimeLineScrollBar,
+.daytimeLineScrollBarList {
+  height: 100%;
+}
+
+.daytimeLineScrollBarList {
+  padding-left: 45%;
+  position: relative;
+  z-index: -1;
+}
+
+.daytimeLineScrollBar
+  .daytimeLineScrollBarList
+  li:last-child
+  .scrollBarItemLineWrapper
+  .scrollBarItemLine:not(:first-child) {
+  display: none;
+}
+
+.daytimeLineScrollBarItemDot {
+  width: 30%;
+}
+
+.scrollBarItemLineWrapper {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.activeDaytimeLineScrollBarItem .scrollBarItemLineWrapper {
+  position: relative;
+}
+
+.activeDaytimeLineScrollBarItem .scrollBarItemLine:first-child {
+  width: var(--timeline-active-indicator-width);
+  border-color: var(--send);
+  position: relative;
+}
+
+.activeDaytimeLineScrollBarItem .scrollBarItemLine:first-child::after,
+.activeDaytimeLineScrollBarItem .scrollBarItemLine:first-child::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: var(--timeline-dot-size);
+  height: 3vmin;
+  background-color: var(--white);
+  transform: translateY(calc(0%));
+  z-index: 1;
+  border-radius: 0 0 50%;
+}
+
+.activeDaytimeLineScrollBarItem .scrollBarItemLine:first-child::before {
+  border-radius: 0 50% 0;
+  transform: translateY(2px);
+  top: 0;
+  bottom: initial;
+}
+
+.activeDaytimeLineScrollBarItem .scrollBarItemLineWrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--timeline-dot-size);
+  height: var(--timeline-dot-size);
+  background-color: var(--send);
+  transform: translateY(-50%);
+}
+
+.activeDaytimeLineScrollBarItem .daytimeLineScrollBarItemDotIcon {
+  opacity: 0;
+}
+
+.daytimeLineScrollBarItem2 .scrollBarItemLineWrapper,
+.daytimeLineScrollBarItem3 .scrollBarItemLineWrapper {
+  width: 50%;
+}
+
+.daytimeLineScrollBarItem1 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(2),
+.daytimeLineScrollBarItem2 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(2) {
+  width: 90%;
+}
+
+.daytimeLineScrollBarItem1 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(3),
+.daytimeLineScrollBarItem2 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(3) {
+  width: 80%;
+}
+
+.daytimeLineScrollBarItem1 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(4),
+.daytimeLineScrollBarItem2 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(4) {
+  width: 70%;
+}
+
+/** **/
+.daytimeLineScrollBarItem3 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(2),
+.daytimeLineScrollBarItem4 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(2) {
+  width: 70%;
+}
+
+.daytimeLineScrollBarItem3 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(3),
+.daytimeLineScrollBarItem4 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(3) {
+  width: 80%;
+}
+
+.daytimeLineScrollBarItem3 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(4),
+.daytimeLineScrollBarItem4 .scrollBarItemLineWrapper .scrollBarItemLine:nth-child(4) {
+  width: 90%;
+}
+
+.daytimeLineScrollBarItem2 .daytimeLineScrollBarItemDotIcon,
+.daytimeLineScrollBarItem4 .daytimeLineScrollBarItemDotIcon {
+  transform: scale(1) translateY(-50%);
+}
+
+.dailyEventStatusIconWrapper {
+  position: absolute;
+  height: 3.5vmin;
+  width: 3.5vmin;
+  top: 0;
+  right: 0;
+  transform: translate(100%, 0%);
+  cursor: pointer;
+  opacity: 0.75;
+  transition: var(--transition);
+}
+
+.dailyEventStatusIconWrapper:hover {
+  opacity: 1;
+}
+
+.dailyEventStatusIcon {
+  position: relative;
+}
+
+.dailyEventTotalCount {
+  color: var(--black);
+  text-align: center;
+  font-size: calc(1.2vw + 1.2vh);
+  font-weight: 300;
+}
+
+.dailyEventStatus {
+  color: var(--black);
+  text-align: center;
+  font-size: calc(0.8vw + 0.8vh);
+  font-weight: 275;
+  text-transform: capitalize;
+}
+
+.dailyEventUserRoleIcon {
+  position: absolute;
+  height: 3.25vmin;
+  width: 3.25vmin;
+  top: 1vmin;
+  left: calc(var(--daily-container-vertical-padding) * 1.5);
+  cursor: pointer;
+}
+
+.dailyEventUserRoleIconDatesPage {
+  height: 7.92vmin;
+  width: 7.92vmin;
+  top: 2.5vmin;
+}
+
+.trashIcon {
+  position: absolute;
+  height: 1.65vmin;
+  width: 1.65vmin;
+  /* top: 0.2vmin; */
+  right: calc(var(--daily-container-vertical-padding) * 1.5);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.trashIcon svg {
+  height: 100%;
+  width: 100%;
+}
+
+.trashIcon:hover {
+  transform: scale(1.25);
+}
+
+.disabled .dailyEventMainContainer,
+.disabled .dailyEventTotalCount,
+.disabled .dailyEventStatus {
+  color: var(--gray-500);
+  filter: grayscale(100%);
+  cursor: not-allowed;
+}
+
+.dailyContainer.disabled {
+  border-color: var(--gray-500) !important;
+}
+
+.cardYearCalendar .folioCalendarContainer.calendarContainer .folioMonthlyCalendar :global(.react-calendar__tile) {
+  line-height: 0.85;
+}
+
+.disabled .dailyEventMainContainer img,
+.disabled .dailyEventMainContainer svg path,
+.disabled .dailyEventMainContainer svg circle {
+  filter: opacity(0.5);
+}
+
+span.dailyEventTypeInvestment span:first-child {
+  font-weight: 100;
+}
+
+span.dailyEventTypeInvestment span {
+  text-transform: capitalize;
+}
+
+.topDateWrapper :global(.rbc-today) {
+  transition: var(--transition);
+  background-color: transparent;
+}
+
+.sendTopDateWrapper {
+  --theme-color: var(--send);
+  --theme-color-dark: var(--send-dark);
+}
+
+.searchTopDateWrapper {
+  --theme-color: var(--search);
+  --theme-color-dark: var(--search-dark);
+}
+
+.scoutTopDateWrapper {
+  --theme-color: var(--scout);
+  --theme-color-dark: var(--scout-dark);
+}
+
+.storeTopDateWrapper {
+  --theme-color: var(--store);
+  --theme-color-dark: var(--store-dark);
+}
+
+.signTopDateWrapper {
+  --theme-color: var(--sign);
+  --theme-color-dark: var(--sign-dark);
+}
+
+.semiYearlyCalendarContainer {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Apply theme colors to each themed wrapper */
+.searchTopDateWrapper :global(.rbc-header),
+.scoutTopDateWrapper :global(.rbc-header),
+.storeTopDateWrapper :global(.rbc-header),
+.signTopDateWrapper :global(.rbc-header),
+.sendTopDateWrapper :global(.rbc-header) {
+  border-color: var(--theme-color) !important;
+}
+
+.searchTopDateWrapper :global(.rbc-today),
+.scoutTopDateWrapper :global(.rbc-today),
+.storeTopDateWrapper :global(.rbc-today),
+.signTopDateWrapper :global(.rbc-today),
+.sendTopDateWrapper :global(.rbc-today) {
+  outline-color: var(--theme-color) !important;
+}
+
+.searchTopDateWrapper :global(.rbc-today:hover),
+.scoutTopDateWrapper :global(.rbc-today:hover),
+.storeTopDateWrapper :global(.rbc-today:hover),
+.signTopDateWrapper :global(.rbc-today:hover),
+.sendTopDateWrapper :global(.rbc-today:hover) {
+  outline-color: var(--theme-color-dark) !important;
+}
+
+.monthlyCalendarContainer :global(.rbc-calendar) {
+  border-radius: calc(var(--folio-container-top-border-radius) - 0.6vmin)
+    calc(var(--folio-container-top-border-radius) - 0.6vmin) calc(var(--folio-container-top-border-radius) - 0.6vmin)
+    calc(var(--folio-container-top-border-radius) - 0.6vmin);
+}
+
+.folioMonthlyCalendarContainer.folioMonthlyCalendarFirstItem:not(.folioFullPageMonthlyCalendarContainer)
+  :global(.rbc-calendar) {
+  border-radius: 3.95vmin 3.95vmin 1.2vmin 1.2vmin;
+}
+
+.folioMonthlyCalendarContainer.folioMonthlyCalendarLastItem:not(.folioFullPageMonthlyCalendarContainer)
+  :global(.rbc-calendar) {
+  border-radius: 1.2vmin 1.2vmin 3.95vmin 3.95vmin;
+}
+
+.dailyEventsAndMultiStepsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 43.331%;
+}
+
+.dailyEventsAndMultiStepsContainer > div {
+  width: 33.33%;
+}
+
+.dailyEventsAndMultiStepsContainer > div.dailyEventMainImage {
+  height: 100%;
+}
+
+.datesPageTopDateWrapper :global(.rbc-header) {
+  border-color: var(--black-900) !important;
+}
+
+.moreEventsWrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  font-size: calc(0.32vw + 0.32vh);
+  font-weight: 300;
+  color: var(--black);
+  bottom: 0.5vmin;
+  left: 0.5vmin;
+}
+
+.smallMoreEventsWrapper {
+  font-size: calc(0.22vw + 0.22vh);
+  bottom: 0.3vmin;
+  left: 0.3vmin;
+}
+
+.folioDailyContainerDatesPage .dailyEventName {
+  font-size: calc(1.1vw + 1.1vh);
+  font-weight: 200;
+}
+
+.folioDailyContainerDatesPage .dailyEventType {
+  font-size: calc(2.4vw + 2.4vh);
+  font-weight: 300;
+}
