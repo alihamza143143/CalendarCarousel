@@ -4,12 +4,7 @@
  */
 
 export {
-  useDailyCalendarCards,
   useEmptyStateCalendarCards,
-  useMonthlyCalendarCards,
-  useBiMonthlyCalendarCards,
-  useSemiYearlyCalendarCards,
-  useYearlyCalendarCards,
   CalendarCardWrapper
 } from './calendarCardRenderers'
 
