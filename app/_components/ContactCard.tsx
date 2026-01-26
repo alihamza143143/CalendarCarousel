@@ -17,15 +17,28 @@ const ContactCard: React.FC = () => {
       </button>
       <div className={show ? styles.popupShow : styles.popupHide}>
         <div className={styles.card}>
-          <div className={styles.animatedText}>Ali Hamza Tariq</div>
-          <div className={styles.infoRow}>
+          <div className={styles.animatedText}>
+            Ali Hamza Tariq
+            <span className={styles.subtitle}>Creative Developer</span>
+          </div>
+          <a
+            className={styles.infoRow}
+            href="https://wa.me/923099715569"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Chat on WhatsApp or Call"
+          >
             <FaPhone className={styles.icon} />
             <span>00923099715569</span>
-          </div>
-          <div className={styles.infoRow}>
+          </a>
+          <a
+            className={styles.infoRow}
+            href="mailto:alihamza891840@gmail.com"
+            title="Send Email"
+          >
             <FaEnvelope className={styles.icon} />
             <span>alihamza891840@gmail.com</span>
-          </div>
+          </a>
         </div>
       </div>
     </div>

@@ -15,10 +15,7 @@
   contain: layout style;
   isolation: isolate;
 
-  /* Smoother scroll and less flicker */
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+
 
   --card-calendar-container-width: 67.04vmin;
   --card-calendar-aspect-ratio: 724 / 578;

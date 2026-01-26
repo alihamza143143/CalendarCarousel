@@ -8,7 +8,7 @@ import type { ScrollInfoType, CardsInfoType } from '../carouselUtils'
  */
 
 // Performance constants
-const LERP_SMOOTHING = 0.08 // Even smoother scrolling (lower = smoother but slower)
+const LERP_SMOOTHING = 0.12 // Smoother scrolling (lower = smoother but slower)
 const SNAP_STRENGTH = 0.85 // How quickly cards snap to position
 const VELOCITY_DECAY = 0.95 // How quickly velocity decays
 const MIN_DELTA_THRESHOLD = 0.0005 // Minimum delta to consider movement
@@ -82,7 +82,7 @@ export function updateScrollPercent({ scrollInfo, cardsInfo, velocityRef }: Upda
   }
 
   // Smooth current percent towards target with frame-rate independent smoothing
-  const currentLerpFactor = 1 - Math.pow(1 - 0.10, dt * 60)
+  const currentLerpFactor = 1 - Math.pow(1 - 0.15, dt * 60)
   cardsInfo.percents.current = lerp(cardsInfo.percents.current, cardsInfo.percents.target, currentLerpFactor)
   
   // Round to prevent jitter from floating point errors
