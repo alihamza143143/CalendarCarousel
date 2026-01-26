@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { FaPhone, FaEnvelope, FaUser } from 'react-icons/fa';
 import styles from './ContactCard.module.css';

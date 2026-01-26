@@ -1,9 +1,7 @@
 
 
 import CalendarSwiper from './_components/CalendarSwiper';
-import dynamic from 'next/dynamic';
-
-const ContactCard = dynamic(() => import('./_components/ContactCard'), { ssr: false });
+import ContactCard from './_components/ContactCard';
 
 export default function Home() {
   return (
