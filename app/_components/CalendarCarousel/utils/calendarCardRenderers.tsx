@@ -6,6 +6,9 @@ import style from '../CalendarCarousel.module.css'
 
 export type CalendarCardType = 'default' | 'monthly' | 'bimonthly' | 'semiyearly' | 'yearly'
 
+// Performance: Reduced card count for better performance
+const CARD_COUNT = 20
+
 interface CalendarCardWrapperProps {
   index: number
   children: React.ReactNode
@@ -40,12 +43,12 @@ interface EmptyStateCalendarCardsProps {
 }
 
 /**
- * Renders empty state calendar cards (6 placeholder cards)
+ * Renders empty state calendar cards with optimized count for performance
  */
 export function useEmptyStateCalendarCards({ moveInFront, createCardRef }: EmptyStateCalendarCardsProps) {
   return useMemo(
     () =>
-      [...Array(100)].map((_, index) => (
+      [...Array(CARD_COUNT)].map((_, index) => (
         <CalendarCardWrapper
           key={`empty-card-${index}`}
           index={index}

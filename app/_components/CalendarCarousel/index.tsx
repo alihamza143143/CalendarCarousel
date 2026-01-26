@@ -3,7 +3,7 @@
 import cn from 'classnames'
 import gsap from 'gsap'
 import normalizeWheel from 'normalize-wheel'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from 'react'
 import type { TimelineDayEventsType } from '@/app/_types'
 import { getInfinityPosition, lerp, round, smoothstepLinear, clamp } from '@/app/_utils/cabinetHelpers'
 import { type CardsInfoType, type HexColor, hexToRgb, isHexColor, type ScrollInfoType } from './carouselUtils'
@@ -15,10 +15,20 @@ import { cacheCardElements, applyBorderColors, applySingleBorderColor } from './
 import { updateScroll, updateScrollPercent, moveCardInFront, SCROLL_AMOUNT_PER_CARD } from './utils/scrollAnimations'
 
 import style from './CalendarCarousel.module.css'
-// import { getInfinityPosition } from '@/app/_utils/cabinetHelpers'
+
+// Performance constants
+const CARD_COUNT = 20 // Reduced from 100 for better performance
+const WHEEL_THROTTLE_MS = 8 // ~120fps throttle for wheel events
+const VISIBILITY_RANGE_MULTIPLIER = 6 // Cards within this many zSteps are fully processed
 
 //  Swipe state type
 export type SwipeState = 'default' | 'monthly' | 'bimonthly' | 'semiyearly' | 'yearly'
+
+// Configure GSAP for optimal performance
+gsap.config({
+  force3D: true,
+  nullTargetWarn: false
+})
 
 export default function CalendarCarousel({
   calendarCards: initialCalendarCards,
@@ -40,11 +50,11 @@ export default function CalendarCarousel({
   // Track disabled from index to persist across state updates
   const disabledFromIndexRef = useRef<number | null>(null)
 
-  // Shared store state for syncing disabled state across components
-  // const setDisabledTimelineFromIndex = useSendStore((state) => state.setDisabledTimelineFromIndex)
-
   // Internal state to manage calendar cards (for disabling on delete)
   const [calendarCards, setCalendarCards] = useState<TimelineDayEventsType[]>(initialCalendarCards)
+
+  // Throttle tracking for wheel events
+  const lastWheelTimeRef = useRef(0)
 
   // Sync with prop changes while preserving disabled state
   useEffect(() => {
@@ -70,13 +80,13 @@ export default function CalendarCarousel({
     current: 0, // smoothed
     last: 0,
     delta: 0,
-    speedScrollCoeff: 0.08 // delta speed
+    speedScrollCoeff: 0.06 // Reduced for smoother scrolling
   })
 
   const cardsInfo = useRef<CardsInfoType>({
     elements: [],
     cachedElements: [],
-    bounds: Array.from({ length: 6 }, () => {
+    bounds: Array.from({ length: CARD_COUNT }, () => {
       return {
         width: 0,
         height: 0,
@@ -244,24 +254,34 @@ export default function CalendarCarousel({
     }
   }, [cardsBorderColors, calendarCards.length])
 
-  // updating delta on wheel event
+  // updating delta on wheel event with throttling
   useEffect(() => {
     const cardsContainer = cardsContainerRef.current
 
     const onWheel = (event: WheelEvent) => {
+      // Throttle wheel events for performance
+      const now = performance.now()
+      if (now - lastWheelTimeRef.current < WHEEL_THROTTLE_MS) {
+        return
+      }
+      lastWheelTimeRef.current = now
+
       const { pixelY } = normalizeWheel(event)
-      const scrollDelta = pixelY * scrollInfo.current.speedScrollCoeff
+      
+      // Clamp scroll delta to prevent extreme values
+      const clampedPixelY = clamp(pixelY, -100, 100)
+      const scrollDelta = clampedPixelY * scrollInfo.current.speedScrollCoeff
 
       // Calculate velocity
-      const now = Date.now()
       const timeDelta = (now - lastScrollTimeRef.current) / 1000 // in seconds
-      velocityRef.current = Math.abs(scrollDelta / timeDelta)
+      velocityRef.current = Math.abs(scrollDelta / Math.max(timeDelta, 0.016)) // Prevent division by very small numbers
       lastScrollTimeRef.current = now
 
       scrollInfo.current.target -= scrollDelta
     }
 
-    cardsContainer?.addEventListener('wheel', onWheel)
+    // Use passive: false to allow preventDefault if needed, but optimized
+    cardsContainer?.addEventListener('wheel', onWheel, { passive: true })
 
     return () => {
       cardsContainer?.removeEventListener('wheel', onWheel)
@@ -338,8 +358,8 @@ export default function CalendarCarousel({
     }
   }
 
-  // updating cards position and ui
-  const updateCards = () => {
+  // updating cards position and ui - optimized for GPU performance
+  const updateCards = useCallback(() => {
     // If zStep is 0, use index-based colors for all cards and skip z-position calculations
     if (cardsInfo.current.zStep === 0) {
       cardsInfo.current.elements.forEach((card, idx) => {
@@ -361,43 +381,44 @@ export default function CalendarCarousel({
     }
 
     // Visibility culling: only process cards within a reasonable range
-    // Process cards that are within 8 zSteps of the front (visible range)
-    const VISIBILITY_RANGE = 8 * cardsInfo.current.zStep
+    const VISIBILITY_RANGE = VISIBILITY_RANGE_MULTIPLIER * cardsInfo.current.zStep
+    const elementsLength = cardsInfo.current.elements.length
+    const zStep = cardsInfo.current.zStep
+    const yStep = cardsInfo.current.yStep
+    const currentPercent = cardsInfo.current.percents.current
+
+    // Pre-calculate full distances once
+    const fullDistanceY = yStep * -1 * elementsLength
+    const fullDistanceZ = zStep * -1 * elementsLength
 
     cardsInfo.current.elements.forEach((card, idx) => {
       if (!card) return
       if (!cardsInfo.current.bounds[idx]) return
 
       // get start position and add move percents to it
-      const startYPosition =
-        cardsInfo.current.percents.current * cardsInfo.current.yStep - cardsInfo.current.yStep * idx
-      const startZPosition =
-        cardsInfo.current.percents.current * cardsInfo.current.zStep - cardsInfo.current.zStep * idx
-
-      // get full cards distance
-      const fullDistanceY = cardsInfo.current.yStep * -1 * cardsInfo.current.elements.length
-      const fullDistanceZ = cardsInfo.current.zStep * -1 * cardsInfo.current.elements.length
+      const startYPosition = currentPercent * yStep - yStep * idx
+      const startZPosition = currentPercent * zStep - zStep * idx
 
       // get real looped position
-      const realY = getInfinityPosition(startYPosition, fullDistanceY, cardsInfo.current.yStep * -1)
-      const realZ = getInfinityPosition(startZPosition, fullDistanceZ, cardsInfo.current.zStep * -1)
-      const realZIndex = cardsInfo.current.elements.length - Math.abs(Math.floor(realZ / cardsInfo.current.zStep))
+      const realY = getInfinityPosition(startYPosition, fullDistanceY, yStep * -1)
+      const realZ = getInfinityPosition(startZPosition, fullDistanceZ, zStep * -1)
+      const realZIndex = elementsLength - Math.abs(Math.floor(realZ / zStep))
 
       cardsInfo.current.bounds[idx].z = round(realZ, 4)
 
       // Visibility culling: skip cards far off-screen
-      if (realZ < -VISIBILITY_RANGE && realZ > cardsInfo.current.lastCardsBoundaries.end * cardsInfo.current.zStep) {
-        // Card is far off-screen, only update position/zIndex, skip color/opacity calculations
-        const yPosition = realZ <= -4 * cardsInfo.current.zStep ? 20 : isDatesPage ? realY * 0.5 : realY
+      if (realZ < -VISIBILITY_RANGE && realZ > cardsInfo.current.lastCardsBoundaries.end * zStep) {
+        // Card is far off-screen, only update position/zIndex with GPU acceleration
+        const yPosition = realZ <= -4 * zStep ? 20 : isDatesPage ? realY * 0.5 : realY
         gsap.set(card, {
           y: yPosition,
           z: isDatesPage ? realZ * 0.25 : realZ,
           zIndex: realZIndex,
-          pointerEvents: realZ > 20 ? 'none' : 'all'
+          pointerEvents: realZ > 20 ? 'none' : 'all',
+          force3D: true
         })
         return
       }
-
       // Get cached DOM elements (cache if not already cached)
       if (!cardsInfo.current.cachedElements[idx]) {
         cardsInfo.current.cachedElements[idx] = cacheCardElements(card)
@@ -542,34 +563,39 @@ export default function CalendarCarousel({
         }
 
         gsap.set(card, {
-          opacity: Math.max(lastElOpacityProgress, 0.85)
+          opacity: Math.max(lastElOpacityProgress, 0.85),
+          force3D: true
         })
       }
 
-      const yPosition = realZ <= -4 * cardsInfo.current.zStep ? 20 : isDatesPage ? realY * 0.5 : realY
+      const yPosition = realZ <= -4 * zStep ? 20 : isDatesPage ? realY * 0.5 : realY
 
-      // setting looped position and zIndex
+      // setting looped position and zIndex with GPU acceleration
       gsap.set(card, {
         y: yPosition,
         z: isDatesPage ? realZ * 0.25 : realZ,
         zIndex: realZIndex,
-        pointerEvents: realZ > 20 ? 'none' : 'all' // remain pointer events on first card, so only it can be swiped to left/right
+        pointerEvents: realZ > 20 ? 'none' : 'all',
+        force3D: true // GPU acceleration for smooth transforms
       })
     })
-  }
+  }, [cardsBorderColors, isDatesPage])
 
-  // update in each frame
+  // update in each frame - consolidated ticker for better performance
   useEffect(() => {
-    gsap.ticker.add(handleUpdateScroll)
-    gsap.ticker.add(handleUpdate)
-    gsap.ticker.add(updateCards)
+    // Use a single animation frame callback for all updates
+    const tick = () => {
+      handleUpdateScroll()
+      handleUpdate()
+      updateCards()
+    }
+
+    gsap.ticker.add(tick)
 
     return () => {
-      gsap.ticker.remove(handleUpdateScroll)
-      gsap.ticker.remove(handleUpdate)
-      gsap.ticker.remove(updateCards)
+      gsap.ticker.remove(tick)
     }
-  }, [cardsBorderColors])
+  }, [cardsBorderColors, updateCards])
 
   // Render empty state daily calendar cards
   const emptyStateDailyCalendarCards = useEmptyStateCalendarCards({

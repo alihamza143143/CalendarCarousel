@@ -1,3 +1,4 @@
+
 .calendarCarousel {
   position: relative;
   display: flex;
@@ -7,6 +8,17 @@
   perspective: 100vmin;
   perspective-origin: center 20vmin;
   pointer-events: all;
+
+  /* GPU acceleration and performance */
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  contain: layout style;
+  isolation: isolate;
+
+  /* Smoother scroll and less flicker */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 
   --card-calendar-container-width: 67.04vmin;
   --card-calendar-aspect-ratio: 724 / 578;
@@ -24,6 +36,22 @@
   bottom: var(--card-calendar-bottom-offset);
   width: var(--card-calendar-container-width);
   aspect-ratio: var(--card-calendar-aspect-ratio);
+  
+  /* GPU acceleration - prevent flickering and improve performance */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity, z-index;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Contain paint for better performance */
+  contain: layout paint;
 }
 
 .biMonthlyCalendarContainer {

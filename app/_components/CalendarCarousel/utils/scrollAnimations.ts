@@ -7,17 +7,31 @@ import type { ScrollInfoType, CardsInfoType } from '../carouselUtils'
  * Centralizes complex scroll calculations and smoothing
  */
 
+// Performance constants
+const LERP_SMOOTHING = 0.08 // Even smoother scrolling (lower = smoother but slower)
+const SNAP_STRENGTH = 0.85 // How quickly cards snap to position
+const VELOCITY_DECAY = 0.95 // How quickly velocity decays
+const MIN_DELTA_THRESHOLD = 0.0005 // Minimum delta to consider movement
+
 /**
- * Calculate smoothed scroll values using lerp
+ * Calculate smoothed scroll values using lerp with improved smoothing
  */
-export function updateScroll(scrollInfo: ScrollInfoType, smoothingFactor = 0.5): void {
+export function updateScroll(scrollInfo: ScrollInfoType, smoothingFactor = LERP_SMOOTHING): void {
   const dt = getDt()
 
-  scrollInfo.delta = scrollInfo.current - scrollInfo.last
+  // Calculate delta with higher precision
+  const newDelta = scrollInfo.current - scrollInfo.last
+  
+  // Smooth out delta changes to prevent jitter
+  scrollInfo.delta = lerp(scrollInfo.delta, newDelta, 0.5)
   scrollInfo.last = scrollInfo.current
 
-  scrollInfo.current = lerp(scrollInfo.current, scrollInfo.target, dt * smoothingFactor)
-  scrollInfo.current = round(scrollInfo.current, 3)
+  // Improved lerp for smoother animation - use frame-rate independent smoothing
+  const lerpFactor = 1 - Math.pow(1 - smoothingFactor, dt * 60)
+  scrollInfo.current = lerp(scrollInfo.current, scrollInfo.target, lerpFactor)
+  
+  // Round to prevent floating point accumulation issues
+  scrollInfo.current = round(scrollInfo.current, 4)
 }
 
 interface UpdateScrollPercentParams {
@@ -27,47 +41,52 @@ interface UpdateScrollPercentParams {
 }
 
 /**
- * Update scroll percentages with snapping behavior
+ * Update scroll percentages with improved snapping behavior
  */
 export function updateScrollPercent({ scrollInfo, cardsInfo, velocityRef }: UpdateScrollPercentParams): void {
-  const dt = 1.0 - (1.0 - 0.1) ** gsap.ticker.deltaRatio()
+  const dt = getDt()
   const delta = scrollInfo.delta
   let targetPercent = cardsInfo.percents.target
 
+  // Decay velocity over time
+  velocityRef.current *= VELOCITY_DECAY
+
   // Apply wheel delta to target (only if actively scrolling)
-  if (Math.abs(delta) > 0.0001) {
-    targetPercent += delta * 0.1
+  if (Math.abs(delta) > MIN_DELTA_THRESHOLD) {
+    targetPercent += delta * 0.08 // Slightly reduced for smoother feel
     cardsInfo.percents.target = targetPercent
   }
 
-  const VELOCITY_THRESHOLD = 20
-  const baseSnapStrength = velocityRef.current < VELOCITY_THRESHOLD ? 0.99 : 0.9
+  const VELOCITY_THRESHOLD = 15
+  const isLowVelocity = velocityRef.current < VELOCITY_THRESHOLD
 
-  // Only snap if actively scrolling or velocity is high
-  if (delta > 0.0001) {
+  // Improved snapping logic
+  if (Math.abs(delta) > MIN_DELTA_THRESHOLD) {
+    // User is actively scrolling - apply gentle snap towards nearest card
     const targetRounded = Math.round(targetPercent)
-    cardsInfo.percents.target = lerp(targetPercent, targetRounded, dt * baseSnapStrength)
-  } else if (delta < -0.0001) {
-    const HARD_SNAP_THRESHOLD = 0.08
-    const SMALL_DELTA = 0.002
-    const DIRECTIONAL_STRENGTH = 0.9
-
+    const snapStrength = isLowVelocity ? SNAP_STRENGTH : 0.7
+    cardsInfo.percents.target = lerp(targetPercent, targetRounded, dt * snapStrength)
+  } else {
+    // User stopped scrolling - snap to nearest card
+    const HARD_SNAP_THRESHOLD = 0.1
     const nearest = Math.round(targetPercent)
     const distToNearest = Math.abs(targetPercent - nearest)
 
     if (distToNearest < HARD_SNAP_THRESHOLD) {
+      // Close enough - hard snap
       cardsInfo.percents.target = nearest
-    } else if (Math.abs(delta) > SMALL_DELTA) {
-      const directionalSnap = Math.floor(targetPercent)
-      cardsInfo.percents.target = lerp(targetPercent, directionalSnap, dt * DIRECTIONAL_STRENGTH)
     } else {
-      // Idle, do NOT move target — keep last card fully visible
-      cardsInfo.percents.target = targetPercent
+      // Smooth snap to nearest
+      cardsInfo.percents.target = lerp(targetPercent, nearest, dt * SNAP_STRENGTH)
     }
   }
 
-  // Smooth percents
-  cardsInfo.percents.current = lerp(cardsInfo.percents.current, cardsInfo.percents.target, dt * 0.9)
+  // Smooth current percent towards target with frame-rate independent smoothing
+  const currentLerpFactor = 1 - Math.pow(1 - 0.10, dt * 60)
+  cardsInfo.percents.current = lerp(cardsInfo.percents.current, cardsInfo.percents.target, currentLerpFactor)
+  
+  // Round to prevent jitter from floating point errors
+  cardsInfo.percents.current = round(cardsInfo.percents.current, 4)
 }
 
 /**
@@ -82,4 +101,4 @@ export function moveCardInFront(cardIdx: number, cardsInfo: CardsInfoType, scrol
 /**
  * Calculate scroll amount needed to move exactly one card
  */
-export const SCROLL_AMOUNT_PER_CARD = 20
+export const SCROLL_AMOUNT_PER_CARD = 18 // Slightly reduced for smoother single-card movement

@@ -6,6 +6,13 @@ import type { HexColor, CardCachedElements } from '../carouselUtils'
  * Centralizes element caching logic to avoid duplication
  */
 
+// GSAP configuration for GPU-accelerated, flicker-free animations
+const GSAP_GPU_CONFIG = {
+  force3D: true, // Force GPU acceleration
+  immediateRender: true,
+  overwrite: 'auto' as const
+}
+
 /**
  * Cache DOM elements from a calendar card for efficient access
  */
@@ -24,33 +31,33 @@ export function cacheCardElements(card: HTMLDivElement): CardCachedElements {
 }
 
 /**
- * Apply border colors to a cached card element
+ * Apply border colors to a cached card element with GPU optimization
  */
 export function applyBorderColors(cached: CardCachedElements, color: string | HexColor) {
   cached.borders.forEach((border, borderIdx) => {
     gsap.set(border, {
       borderColor: color,
-      immediateRender: true
+      ...GSAP_GPU_CONFIG
     })
 
     if (cached.backgrounds[borderIdx]) {
       gsap.set(cached.backgrounds[borderIdx], {
         backgroundColor: color,
-        immediateRender: true
+        ...GSAP_GPU_CONFIG
       })
     }
 
     if (cached.textBorderPaths[borderIdx]) {
       gsap.set(cached.textBorderPaths[borderIdx], {
         stroke: color,
-        immediateRender: true
+        ...GSAP_GPU_CONFIG
       })
     }
   })
 }
 
 /**
- * Apply a single border color to specific elements
+ * Apply a single border color to specific elements with GPU optimization
  */
 export function applySingleBorderColor(
   borderElement: Element,
@@ -59,18 +66,21 @@ export function applySingleBorderColor(
   color: string
 ) {
   gsap.set(borderElement, {
-    borderColor: color
+    borderColor: color,
+    force3D: true
   })
 
   if (backgroundElement) {
     gsap.set(backgroundElement, {
-      backgroundColor: color
+      backgroundColor: color,
+      force3D: true
     })
   }
 
   if (textBorderPath) {
     gsap.set(textBorderPath, {
-      stroke: color
+      stroke: color,
+      force3D: true
     })
   }
 }

@@ -39,7 +39,11 @@
   height: 100%;
   width: 90.85vw;
   left: 50%;
-  /* transform: translateX(-50%); */
+  /* GPU acceleration */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .calendarSwiper.calendarSwiperFolio {
@@ -51,12 +55,18 @@
 
 .calendarSwiperSlide {
   height: 100%;
+  /* GPU acceleration for swiper slides */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .topDateWrapper {
   height: 100%;
   position: relative;
   transform: translate(0, 0) scale(1);
+  /* GPU hint */
+  will-change: transform;
 }
 
 .biMonthlyTopDateWrapper {
@@ -114,6 +124,14 @@
   flex: 1 0 0;
   position: relative;
   height: 100%;
+  /* GPU acceleration for smooth animations */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Optimize paint */
+  contain: layout style;
+  isolation: isolate;
 }
 
 .folioDailyContainer {

@@ -10,6 +10,8 @@
   letter-spacing: 0.02em;
   text-transform: capitalize;
   text-align: center;
+  /* GPU hint for text rendering */
+  will-change: contents;
 }
 
 .plusIconContainer {
@@ -25,6 +27,9 @@
   position: relative;
   width: 24vmin;
   height: 24vmin;
+  /* GPU acceleration for hover effects */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .startEventText {
@@ -47,4 +52,8 @@
   position: absolute;
   z-index: -1;
   opacity: 1;
+  /* GPU acceleration for images */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout paint;
 }
