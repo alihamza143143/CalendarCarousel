@@ -269,17 +269,25 @@ export default function CalendarCarousel({
     }
   }, [cardsBorderColors, calendarCards.length])
 
-  // updating delta on wheel event with throttling
+  // updating delta on wheel event with scroll lock to prevent accumulation
   useEffect(() => {
     const cardsContainer = cardsContainerRef.current
 
     const onWheel = (event: WheelEvent) => {
-      // Throttle wheel events for performance
+      // Throttle wheel events
       const now = performance.now()
       if (now - lastWheelTimeRef.current < WHEEL_THROTTLE_MS) {
         return
       }
       lastWheelTimeRef.current = now
+
+      // SCROLL LOCK: Don't accept new scroll until current animation is nearly complete
+      // This prevents scroll accumulation that causes ghosting
+      const currentDistance = Math.abs(cardsInfo.current.percents.current - cardsInfo.current.percents.target)
+      if (currentDistance > 0.3) {
+        // Still animating previous scroll - ignore this one
+        return
+      }
 
       const { pixelY } = normalizeWheel(event)
 
@@ -288,8 +296,8 @@ export default function CalendarCarousel({
       if (direction === 0) return
 
       // Calculate velocity
-      const timeDelta = (now - lastScrollTimeRef.current) / 1000 // in seconds
-      velocityRef.current = Math.abs(1 / Math.max(timeDelta, 0.016)) // arbitrary units, just for decay behavior
+      const timeDelta = (now - lastScrollTimeRef.current) / 1000
+      velocityRef.current = Math.abs(1 / Math.max(timeDelta, 0.016))
       lastScrollTimeRef.current = now
 
       // Each wheel "tick" moves exactly one card in percent space
@@ -302,7 +310,6 @@ export default function CalendarCarousel({
       }
     }
 
-    // Use passive: false to allow preventDefault if needed, but optimized
     cardsContainer?.addEventListener('wheel', onWheel, { passive: true })
 
     return () => {
@@ -331,6 +338,12 @@ export default function CalendarCarousel({
         }
 
         event.preventDefault()
+
+        // SCROLL LOCK: Don't accept new input until current animation is nearly complete
+        const currentDistance = Math.abs(cardsInfo.current.percents.current - cardsInfo.current.percents.target)
+        if (currentDistance > 0.3) {
+          return
+        }
 
         // Update velocity for smooth animation
         const now = Date.now()
