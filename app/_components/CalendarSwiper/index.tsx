@@ -14,10 +14,12 @@ import CalendarCarousel from '../CalendarCarousel'
 
 export default function CalendarSwiper({
   calendarCards,
-  isDatesPage
+  isDatesPage,
+  cardCount = 20
 }: {
   calendarCards: TimelineDayEventsType[]
   isDatesPage: boolean
+  cardCount?: number
 }) {
   const carouselKey = useMemo(() => {
     if (calendarCards.length === 0) return 'empty'
@@ -44,11 +46,12 @@ export default function CalendarSwiper({
       >
         <Suspense fallback={<div />}>
           <CalendarCarousel
-            key={carouselKey}
+            key={`${carouselKey}-${cardCount}`}
             carouselType="default"
             isDatesPage={isDatesPage}
             calendarCards={calendarCards}
             colors={defaultColors}
+            cardCount={cardCount}
           />
         </Suspense>
       </SwiperSlide>

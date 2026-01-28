@@ -6,8 +6,8 @@ import style from '../CalendarCarousel.module.css'
 
 export type CalendarCardType = 'default' | 'monthly' | 'bimonthly' | 'semiyearly' | 'yearly'
 
-// Performance: Reduced card count for better performance
-const CARD_COUNT = 20
+// Default card count
+const DEFAULT_CARD_COUNT = 20
 
 interface CalendarCardWrapperProps {
   index: number
@@ -40,15 +40,20 @@ export function CalendarCardWrapper({
 interface EmptyStateCalendarCardsProps {
   moveInFront: (index: number) => void
   createCardRef: (index: number) => (el: HTMLDivElement | null) => void
+  cardCount?: number
 }
 
 /**
- * Renders empty state calendar cards with optimized count for performance
+ * Renders empty state calendar cards with dynamic count
  */
-export function useEmptyStateCalendarCards({ moveInFront, createCardRef }: EmptyStateCalendarCardsProps) {
+export function useEmptyStateCalendarCards({ 
+  moveInFront, 
+  createCardRef, 
+  cardCount = DEFAULT_CARD_COUNT 
+}: EmptyStateCalendarCardsProps) {
   return useMemo(
     () =>
-      [...Array(CARD_COUNT)].map((_, index) => (
+      [...Array(cardCount)].map((_, index) => (
         <CalendarCardWrapper
           key={`empty-card-${index}`}
           index={index}
@@ -62,7 +67,7 @@ export function useEmptyStateCalendarCards({ moveInFront, createCardRef }: Empty
           />
         </CalendarCardWrapper>
       )),
-    [moveInFront, createCardRef]
+    [moveInFront, createCardRef, cardCount]
   )
 }
 

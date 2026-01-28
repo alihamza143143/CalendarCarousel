@@ -8,7 +8,7 @@ import type { ScrollInfoType, CardsInfoType } from '../carouselUtils'
  */
 
 // Performance constants
-const LERP_SMOOTHING = 0.12 // Smoother scrolling (lower = smoother but slower)
+const LERP_SMOOTHING = 0.1 // Slightly smoother scrolling (lower = smoother but slower)
 const SNAP_STRENGTH = 0.85 // How quickly cards snap to position
 const VELOCITY_DECAY = 0.95 // How quickly velocity decays
 const MIN_DELTA_THRESHOLD = 0.0005 // Minimum delta to consider movement
@@ -41,50 +41,37 @@ interface UpdateScrollPercentParams {
 }
 
 /**
- * Update scroll percentages with improved snapping behavior
+ * Update scroll percentages (smoothly move current towards target)
  */
 export function updateScrollPercent({ scrollInfo, cardsInfo, velocityRef }: UpdateScrollPercentParams): void {
   const dt = getDt()
-  const delta = scrollInfo.delta
-  let targetPercent = cardsInfo.percents.target
+  const targetPercent = cardsInfo.percents.target
 
-  // Decay velocity over time
+  // Decay velocity over time (kept for potential future effects)
   velocityRef.current *= VELOCITY_DECAY
 
-  // Apply wheel delta to target (only if actively scrolling)
-  if (Math.abs(delta) > MIN_DELTA_THRESHOLD) {
-    targetPercent += delta * 0.08 // Slightly reduced for smoother feel
-    cardsInfo.percents.target = targetPercent
+  // Calculate distance to target
+  const distanceToTarget = Math.abs(cardsInfo.percents.current - targetPercent)
+
+  // Use progressively stronger lerp as we get closer to target for snappy finish
+  let lerpStrength = 0.2 // Base lerp strength
+  if (distanceToTarget < 0.3) {
+    lerpStrength = 0.4 // Getting close - speed up
   }
-
-  const VELOCITY_THRESHOLD = 15
-  const isLowVelocity = velocityRef.current < VELOCITY_THRESHOLD
-
-  // Improved snapping logic
-  if (Math.abs(delta) > MIN_DELTA_THRESHOLD) {
-    // User is actively scrolling - apply gentle snap towards nearest card
-    const targetRounded = Math.round(targetPercent)
-    const snapStrength = isLowVelocity ? SNAP_STRENGTH : 0.7
-    cardsInfo.percents.target = lerp(targetPercent, targetRounded, dt * snapStrength)
-  } else {
-    // User stopped scrolling - snap to nearest card
-    const HARD_SNAP_THRESHOLD = 0.1
-    const nearest = Math.round(targetPercent)
-    const distToNearest = Math.abs(targetPercent - nearest)
-
-    if (distToNearest < HARD_SNAP_THRESHOLD) {
-      // Close enough - hard snap
-      cardsInfo.percents.target = nearest
-    } else {
-      // Smooth snap to nearest
-      cardsInfo.percents.target = lerp(targetPercent, nearest, dt * SNAP_STRENGTH)
-    }
+  if (distanceToTarget < 0.1) {
+    lerpStrength = 0.6 // Very close - snap quickly
   }
 
   // Smooth current percent towards target with frame-rate independent smoothing
-  const currentLerpFactor = 1 - Math.pow(1 - 0.15, dt * 60)
-  cardsInfo.percents.current = lerp(cardsInfo.percents.current, cardsInfo.percents.target, currentLerpFactor)
-  
+  const currentLerpFactor = 1 - Math.pow(1 - lerpStrength, dt * 60)
+  cardsInfo.percents.current = lerp(cardsInfo.percents.current, targetPercent, currentLerpFactor)
+
+  // AGGRESSIVE SNAP: If we're close to the target, hard snap immediately
+  // This eliminates ghosting by ensuring cards reach exact integer positions
+  if (distanceToTarget < 0.02) {
+    cardsInfo.percents.current = targetPercent
+  }
+
   // Round to prevent jitter from floating point errors
   cardsInfo.percents.current = round(cardsInfo.percents.current, 4)
 }
